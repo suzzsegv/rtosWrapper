@@ -2,7 +2,7 @@
  * vxWorksWrapper.c - VxWorks API wrapper for C11thread.
  */
 /*
- * Copyright (c) 2023 Suzuki Satoshi
+ * Copyright (c) 2023-2024 Suzuki Satoshi
  *
  * This software is provided 'as-is', without any express or implied warranty.
  * In no event will the authors be held liable for any damages arising from the use of
@@ -23,7 +23,7 @@
  */
 
 /*
- * Copyright (c) 2023 鈴木 聡
+ * Copyright (c) 2023-2024 鈴木 聡
  *
  * 本ソフトウェアは「現状のまま」で、明示であるか暗黙であるかを問わず、何らの保証もなく
  * 提供されます。 本ソフトウェアの使用によって生じるいかなる損害についても、作者は一切の責任を
@@ -223,6 +223,7 @@ TASK_ID taskSpawn(char* name, int priority, int options, size_t stackSize, FUNCP
 			return ERROR;
 		}
 
+		pVxwTask->c11thrd = 0;
 		pVxwTask->valid = true;
 	}
 	mtx_unlock(&vxWrapper_taskLibInst.mutex);
@@ -281,6 +282,7 @@ TASK_ID taskCreate(char* name, int priority, int options, size_t stackSize, FUNC
 			return ERROR;
 		}
 
+		pVxwTask->c11thrd = 0;
 		pVxwTask->valid = true;
 	}
 	mtx_unlock(&vxWrapper_taskLibInst.mutex);
@@ -398,7 +400,12 @@ static int vxWrapTaskEntryFunc(void* pArg)
 		pVxwTask->args[8],
 		pVxwTask->args[9]);
 
-	thrd_detach(pVxwTask->c11thrd);
+	mtx_lock(&vxWrapper_taskLibInst.mutex);
+	{
+		pVxwTask->valid = false;
+		thrd_detach(pVxwTask->c11thrd);
+	}
+	mtx_unlock(&vxWrapper_taskLibInst.mutex);
 
 	return rc;
 }
