@@ -117,9 +117,9 @@ typedef struct {
 
 	uint8_t* pMsgData;
 	size_t vwMsgDataSize;
-	uint32_t msgNum;
-	uint32_t msgQueHead;
-	uint32_t msgQueTail;
+	size_t msgNum;
+	size_t msgQueHead;
+	size_t msgQueTail;
 	mtx_t mutex;
 	cnd_t cndSend;
 	cnd_t cndRecv;
@@ -1197,7 +1197,7 @@ static inline ssize_t msgQue_dequeue(VxWrapMsgQue* pMsgQue, char* pBuf, size_t b
 	pMsgQue->msgQueHead = (pMsgQue->msgQueHead + 1) % pMsgQue->maxMsgNum;
 	pMsgQue->msgNum--;
 
-	return pVwMsg->msgDataSize;
+	return (ssize_t)pVwMsg->msgDataSize;
 }
 
 /*!

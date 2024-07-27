@@ -3,7 +3,7 @@
  *                    Interface header file.
  */
 /*
- * Copyright (c) 2023 Suzuki Satoshi
+ * Copyright (c) 2023-2024 Suzuki Satoshi
  *
  * This software is provided 'as-is', without any express or implied warranty.
  * In no event will the authors be held liable for any damages arising from the use of
@@ -24,7 +24,7 @@
  */
 
 /*
- * Copyright (c) 2023 鈴木 聡
+ * Copyright (c) 2023-2024 鈴木 聡
  *
  * 本ソフトウェアは「現状のまま」で、明示であるか暗黙であるかを問わず、何らの保証もなく
  * 提供されます。 本ソフトウェアの使用によって生じるいかなる損害についても、作者は一切の責任を
@@ -120,7 +120,11 @@
  * typedefs
  */
 typedef int BOOL;
-typedef int32_t ssize_t;
+#ifdef _WIN64
+	typedef int64_t ssize_t;
+#else
+	typedef int32_t ssize_t;
+#endif
 typedef int STATUS;
 
 typedef int (*FUNCPTR)();
@@ -131,7 +135,11 @@ typedef uint64_t _Vx_ticks64_t;
 
 /* taskLib */
 typedef uintptr_t TASK_ID;
-typedef int _Vx_usr_arg_t;
+#ifdef _WIN64
+	typedef intptr_t _Vx_usr_arg_t;
+#else
+	typedef int _Vx_usr_arg_t;
+#endif
 typedef int (*VxTaskEntry)(
 		_Vx_usr_arg_t arg1, _Vx_usr_arg_t arg2, _Vx_usr_arg_t arg3, _Vx_usr_arg_t arg4, _Vx_usr_arg_t arg5,
 		_Vx_usr_arg_t arg6, _Vx_usr_arg_t arg7, _Vx_usr_arg_t arg8, _Vx_usr_arg_t arg9, _Vx_usr_arg_t arg10

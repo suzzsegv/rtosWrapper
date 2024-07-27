@@ -3,7 +3,7 @@
  */
 
 /*
- * Copyright (c) 2023 Suzuki Satoshi
+ * Copyright (c) 2023-2024 Suzuki Satoshi
  *
  * This software is provided 'as-is', without any express or implied warranty.
  * In no event will the authors be held liable for any damages arising from the use of
@@ -24,7 +24,7 @@
  */
 
 /*
- * Copyright (c) 2023 鈴木 聡
+ * Copyright (c) 2023-2024 鈴木 聡
  *
  * 本ソフトウェアは「現状のまま」で、明示であるか暗黙であるかを問わず、何らの保証もなく
  * 提供されます。 本ソフトウェアの使用によって生じるいかなる損害についても、作者は一切の責任を
@@ -43,10 +43,12 @@
  *     3. ソースの頒布物から、この表示を削除したり、表示の内容を変更したりしてはなりません。
  */
 
-#include <assert.h>
+#include <stdint.h>
+#include <inttypes.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <assert.h>
 
 #include "vxWorksWrapper.h"
 
@@ -95,15 +97,15 @@ void vxWorksWrapperTaskCreateTest(void)
 		1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
 
 	if (taskId == TASK_ID_NULL) {
-		printf("%s(): taskCreate() error: %d\n", __func__, taskId);
+		printf("%s(): taskCreate() error: %" PRIdPTR "\n", __func__, taskId);
 		exit(-1);
 	}
 
-	printf("%s(): Create task id: %08x\n", __func__, taskId);
+	printf("%s(): Create task id: 0x%" PRIxPTR "\n", __func__, taskId);
 
 	STATUS status = taskActivate(taskId);
 	assert(status == OK);
-	printf("%s(): Activate task id: %08x\n", __func__, taskId);
+	printf("%s(): Activate task id: 0x%" PRIxPTR "\n", __func__, taskId);
 
 	printf("=== %s(): exit.\n", __func__);
 }
@@ -113,13 +115,13 @@ void vxWorksWrapperTaskCreateTest(void)
  */
 int vxWorksWrapperTaskCreateTestEntry(_Vx_usr_arg_t arg0, _Vx_usr_arg_t arg1, _Vx_usr_arg_t arg2)
 {
-	printf("\n--- %s(0x%08x, 0x%08x, 0x%08x): start.\n", __func__,
-		(unsigned int)arg0, (unsigned int)arg1, (unsigned int)arg2);
+	printf("\n--- %s(0x%" PRIxPTR ", 0x%" PRIxPTR ", 0x%" PRIxPTR "): start.\n", __func__,
+		arg0, arg1, arg2);
 
 	TASK_ID taskId = taskIdSelf();
 	assert(taskId != ERROR);
 
-	printf("%s(): Current task id: %08x\n", __func__, taskId);
+	printf("%s(): Current task id: 0x%" PRIxPTR "\n", __func__, taskId);
 	printf("%s(): Current task name: %s\n", __func__, taskName(taskId));
 
 	printf("--- %s(...): end.\n\n", __func__);
@@ -139,24 +141,24 @@ void vxWorksWrapperTaskStartTest(void)
 		1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
 
 	if (taskId == TASK_ID_NULL) {
-		printf("%s(): taskSpawn() error: %d\n", __func__, taskId);
+		printf("%s(): taskSpawn() error: %" PRIdPTR "\n", __func__, taskId);
 		exit(-1);
 	}
 
-	printf("%s(): Spawn task id: %08x\n", __func__, taskId);
+	printf("%s(): Spawn task id: 0x%" PRIxPTR "\n", __func__, taskId);
 
 	printf("=== %s(): exit.\n", __func__);
 }
 
 int vxWorksWrapperTaskStartTestEntry(_Vx_usr_arg_t arg0, _Vx_usr_arg_t arg1, _Vx_usr_arg_t arg2)
 {
-	printf("\n--- %s(0x%08x, 0x%08x, 0x%08x): start.\n", __func__,
-		(unsigned int)arg0, (unsigned int)arg1, (unsigned int)arg2);
+	printf("\n--- %s(0x%" PRIxPTR ", 0x%" PRIxPTR ", 0x%" PRIxPTR "): start.\n", __func__,
+		arg0, arg1, arg2);
 
 	TASK_ID taskId = taskIdSelf();
 	assert(taskId != ERROR);
 
-	printf("%s(): Current task id: %08x\n", __func__, taskId);
+	printf("%s(): Current task id: 0x%" PRIxPTR "\n", __func__, taskId);
 	printf("%s(): Current task name: %s\n", __func__, taskName(taskId));
 
 	{
@@ -226,8 +228,8 @@ void vxWorksWrapper_semTest(void)
 
 void vxWorksWrapper_SemBTestEntry(_Vx_usr_arg_t arg0, _Vx_usr_arg_t arg1, _Vx_usr_arg_t arg2)
 {
-	printf("\n--- %s(0x%08x, 0x%08x, 0x%08x): start.\n", __func__,
-		(unsigned int)arg0, (unsigned int)arg1, (unsigned int)arg2);
+	printf("\n--- %s(0x%" PRIxPTR ", 0x%" PRIxPTR ", 0x%" PRIxPTR "): start.\n", __func__,
+		arg0, arg1, arg2);
 
 	SEM_ID emptyBinSemId = (SEM_ID)arg0;
 	STATUS status;
@@ -298,8 +300,9 @@ void vxWorksWrapper_SemBTestEntry(_Vx_usr_arg_t arg0, _Vx_usr_arg_t arg1, _Vx_us
 
 void vxWorksWrapper_SemBTestEntry_waitForever(_Vx_usr_arg_t arg0, _Vx_usr_arg_t arg1, _Vx_usr_arg_t arg2)
 {
-	printf("\n--- %s(0x%08x, 0x%08x, 0x%08x): start.\n", __func__,
-		(unsigned int)arg0, (unsigned int)arg1, (unsigned int)arg2);
+	printf("\n--- %s(0x%" PRIxPTR ", 0x%" PRIxPTR ", 0x%" PRIxPTR "): "
+		"start.\n",
+		__func__, arg0, arg1, arg2);
 
 	SEM_ID emptyBinSemId = (SEM_ID)arg0;
 	int	waitTimes = (int)arg1;
@@ -309,18 +312,22 @@ void vxWorksWrapper_SemBTestEntry_waitForever(_Vx_usr_arg_t arg0, _Vx_usr_arg_t 
 
 		status = semTake(emptyBinSemId, WAIT_FOREVER);
 		assert(status == OK);
-		printf("... %s(0x%08x, 0x%08x, 0x%08x): sem taked.\n", __func__,
-			(unsigned int)arg0, (unsigned int)arg1, (unsigned int)arg2);
+
+		printf("\n--- %s(0x%" PRIxPTR ", 0x%" PRIxPTR ", 0x%" PRIxPTR "): "
+			"sem taked.\n",
+			__func__, arg0, arg1, arg2);
 	}
 
-	printf("--- %s(0x%08x, 0x%08x, 0x%08x): end.\n", __func__,
-		(unsigned int)arg0, (unsigned int)arg1, (unsigned int)arg2);
+	printf("\n--- %s(0x%" PRIxPTR ", 0x%" PRIxPTR ", 0x%" PRIxPTR "): "
+		"end.\n",
+		__func__, arg0, arg1, arg2);
 }
 
 void vxWorksWrapper_SemMTestEntry(_Vx_usr_arg_t arg0, _Vx_usr_arg_t arg1, _Vx_usr_arg_t arg2)
 {
-	printf("\n--- %s(0x%08x, 0x%08x, 0x%08x): start.\n", __func__,
-		(unsigned int)arg0, (unsigned int)arg1, (unsigned int)arg2);
+	printf("\n--- %s(0x%" PRIxPTR ", 0x%" PRIxPTR ", 0x%" PRIxPTR "): "
+		"start.\n",
+		__func__, arg0, arg1, arg2);
 
 	SEM_ID mtxSemId = (SEM_ID)arg0;
 
@@ -405,8 +412,9 @@ void vxWorksWrapper_SemMTestEntry(_Vx_usr_arg_t arg0, _Vx_usr_arg_t arg1, _Vx_us
 
 void vxWorksWrapper_semMTest_5secTake_entry(_Vx_usr_arg_t arg0, _Vx_usr_arg_t arg1, _Vx_usr_arg_t arg2)
 {
-	printf("\n--- %s(0x%08x, 0x%08x, 0x%08x): start.\n", __func__,
-		(unsigned int)arg0, (unsigned int)arg1, (unsigned int)arg2);
+	printf("\n--- %s(0x%" PRIxPTR ", 0x%" PRIxPTR ", 0x%" PRIxPTR "): "
+		"start.\n",
+		__func__, arg0, arg1, arg2);
 
 	SEM_ID mtxSemId = (SEM_ID)arg0;
 	STATUS status;
@@ -419,8 +427,9 @@ void vxWorksWrapper_semMTest_5secTake_entry(_Vx_usr_arg_t arg0, _Vx_usr_arg_t ar
 	status = semGive(mtxSemId);
 	assert(status == OK);
 
-	printf("--- %s(0x%08x, 0x%08x, 0x%08x): end.\n", __func__,
-		(unsigned int)arg0, (unsigned int)arg1, (unsigned int)arg2);
+	printf("\n--- %s(0x%" PRIxPTR ", 0x%" PRIxPTR ", 0x%" PRIxPTR "): "
+		"end.\n",
+		__func__, arg0, arg1, arg2);
 }
 
 /*!
@@ -437,12 +446,22 @@ void vxWorksWrapper_msgQueTest(void)
 	assert(msgQId == 0);
 
 	// size over
+#ifdef _WIN64
+	msgQId = msgQCreate(0x100000000, 0x100000000, MSG_Q_FIFO);
+	assert(msgQId == 0);
+#else
 	msgQId = msgQCreate(65536, 65536, MSG_Q_FIFO);
 	assert(msgQId == 0);
+#endif
 
 	// memory full
+#ifdef _WIN64
+	msgQId = msgQCreate(0x100000000, 0xfffffff0, MSG_Q_FIFO);
+	assert(msgQId == 0);
+#else
 	msgQId = msgQCreate(65536, 65535, MSG_Q_FIFO);
 	assert(msgQId == 0);
+#endif
 
 	// success
 	printf("... msgQCreate(maxMsgNum: 8, maxMsgSize: 5, options: MSG_Q_FIFO) ...\n");
@@ -504,7 +523,7 @@ void vxWorksWrapper_msgQueTest(void)
 
 void vxWorksWrapper_msgQueTest_msgQRecv_entry(_Vx_usr_arg_t arg0)
 {
-	printf("\n--- %s(0x%08x): start.\n", __func__, (unsigned int)arg0);
+	printf("\n--- %s(0x%" PRIxPTR "): start.\n", __func__, arg0);
 
 	MSG_Q_ID msgQId = (MSG_Q_ID)arg0;
 
@@ -543,12 +562,12 @@ void vxWorksWrapper_msgQueTest_msgQRecv_entry(_Vx_usr_arg_t arg0)
 		assert(errno == S_objLib_OBJ_TIMEOUT);
 	}
 
-	printf("--- %s(0x%08x): end.\n", __func__, (unsigned int)arg0);
+	printf("--- %s(0x%" PRIxPTR "): end.\n", __func__, arg0);
 }
 
 void vxWorksWrapper_msgQueTest_msgQSend_entry(_Vx_usr_arg_t arg0)
 {
-	printf("\n--- %s(0x%08x): start.\n", __func__, (unsigned int)arg0);
+	printf("\n--- %s(0x%" PRIxPTR "): start.\n", __func__, arg0);
 
 	MSG_Q_ID msgQId = (MSG_Q_ID)arg0;
 	STATUS status;
@@ -569,5 +588,5 @@ void vxWorksWrapper_msgQueTest_msgQSend_entry(_Vx_usr_arg_t arg0)
 	status = msgQSend(msgQId, "BBBBB", 5, WAIT_FOREVER, MSG_PRI_NORMAL);
 	assert(status == OK);
 
-	printf("\n--- %s(0x%08x): end.\n", __func__, (unsigned int)arg0);
+	printf("--- %s(0x%" PRIxPTR "): end.\n", __func__, arg0);
 }
