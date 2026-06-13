@@ -151,13 +151,14 @@ int thrd_create(thrd_t* pThr, thrd_start_t pFunc, void* pArg)
 		0, // stack size
 		threadEntryFunc, // thread function
 		(void*)pThrdWin32, // argument list
-		0, // initial state
+		CREATE_SUSPENDED, // initial state
 		&threadId
 	);
 
-	if (threadHandle == (HANDLE)0) {
+	if (threadHandle == 0) {
+		int err = GetLastError();
+		printf("%s(): _beginthreadex() error: %d\n", __func__, err);
 		free(pThrdWin32);
-		printf("%s(): _beginthreadex() error: %d\n", __func__, GetLastError());
 		return thrd_error;
 	}
 
@@ -167,6 +168,15 @@ int thrd_create(thrd_t* pThr, thrd_start_t pFunc, void* pArg)
 
 	pThrdWin32->handle = threadHandle;
 	pThrdWin32->id = threadId;
+
+	DWORD resumeRc = ResumeThread(threadHandle);
+	if (resumeRc == (DWORD)-1) {
+		int err = GetLastError();
+		printf("%s(): ResumeThread() error: %d\n", __func__, err);
+		CloseHandle(threadHandle);
+		free(pThrdWin32);
+		return thrd_error;
+	}
 
 	*pThr = (thrd_t)pThrdWin32;
 
