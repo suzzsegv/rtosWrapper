@@ -155,7 +155,8 @@ int thrd_create(thrd_t* pThr, thrd_start_t pFunc, void* pArg)
 		&threadId
 	);
 
-	if (threadHandle == (HANDLE)-1) {
+	if (threadHandle == (HANDLE)0) {
+		free(pThrdWin32);
 		printf("%s(): _beginthreadex() error: %d\n", __func__, GetLastError());
 		return thrd_error;
 	}
