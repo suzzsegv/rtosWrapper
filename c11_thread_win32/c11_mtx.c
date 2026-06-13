@@ -154,7 +154,7 @@ int mtx_timedlock(mtx_t* pMutex, const struct timespec* pTimeoutTs)
 		 || ((currentTs.tv_sec == pTimeoutTs->tv_sec) && (currentTs.tv_nsec > pTimeoutTs->tv_nsec))) {
 			return thrd_timedout;
 		}
-		Sleep(0);
+		Sleep(1);
 		success = TryEnterCriticalSection(&pMtxWin32->criticalSection);
 	}
 
