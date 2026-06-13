@@ -220,37 +220,37 @@ TASK_ID taskSpawn(char* name, int priority, int options, size_t stackSize, FUNCP
 
 		if (taskIx >= VW_TASK_NUM_MAX) {
 			mtx_unlock(&vxWrapper_taskLibInst.mutex);
-			return ERROR;
+			return TASK_ID_ERROR;
 		}
+
+		strcpy_s(pVxwTask->name, sizeof(pVxwTask->name), name);
+		pVxwTask->priority = priority;
+		pVxwTask->options = options;
+		pVxwTask->stackSize = stackSize;
+		pVxwTask->pEntry = pEntry;
+		pVxwTask->args[0] = arg1;
+		pVxwTask->args[1] = arg2;
+		pVxwTask->args[2] = arg3;
+		pVxwTask->args[3] = arg4;
+		pVxwTask->args[4] = arg5;
+		pVxwTask->args[5] = arg6;
+		pVxwTask->args[6] = arg7;
+		pVxwTask->args[7] = arg8;
+		pVxwTask->args[8] = arg9;
+		pVxwTask->args[9] = arg10;
+		pVxwTask->pendSemId = SEM_ID_NULL;
+		pVxwTask->pendSemFlushed = false;
 
 		pVxwTask->c11thrd = 0;
 		pVxwTask->valid = true;
 	}
 	mtx_unlock(&vxWrapper_taskLibInst.mutex);
 
-	strcpy_s(pVxwTask->name, sizeof(pVxwTask->name), name);
-	pVxwTask->priority = priority;
-	pVxwTask->options = options;
-	pVxwTask->stackSize = stackSize;
-	pVxwTask->pEntry = pEntry;
-	pVxwTask->args[0] = arg1;
-	pVxwTask->args[1] = arg2;
-	pVxwTask->args[2] = arg3;
-	pVxwTask->args[3] = arg4;
-	pVxwTask->args[4] = arg5;
-	pVxwTask->args[5] = arg6;
-	pVxwTask->args[6] = arg7;
-	pVxwTask->args[7] = arg8;
-	pVxwTask->args[8] = arg9;
-	pVxwTask->args[9] = arg10;
-	pVxwTask->pendSemId = SEM_ID_NULL;
-	pVxwTask->pendSemFlushed = false;
-
 	void* pArg = (void*)pVxwTask;
 	int rc = thrd_create(&pVxwTask->c11thrd, (thrd_start_t)vxWrapTaskEntryFunc, pArg);
 	if (rc == thrd_error) {
 		pVxwTask->valid = false;
-		return ERROR;
+		return TASK_ID_ERROR;
 	}
 
 	thrd_name_set(pVxwTask->c11thrd, &pVxwTask->name[0]);
@@ -279,31 +279,31 @@ TASK_ID taskCreate(char* name, int priority, int options, size_t stackSize, FUNC
 
 		if (taskIx >= VW_TASK_NUM_MAX) {
 			mtx_unlock(&vxWrapper_taskLibInst.mutex);
-			return ERROR;
+			return TASK_ID_ERROR;
 		}
+
+		strcpy_s(pVxwTask->name, sizeof(pVxwTask->name), name);
+		pVxwTask->priority = priority;
+		pVxwTask->options = options;
+		pVxwTask->stackSize = stackSize;
+		pVxwTask->pEntry = pEntry;
+		pVxwTask->args[0] = arg1;
+		pVxwTask->args[1] = arg2;
+		pVxwTask->args[2] = arg3;
+		pVxwTask->args[3] = arg4;
+		pVxwTask->args[4] = arg5;
+		pVxwTask->args[5] = arg6;
+		pVxwTask->args[6] = arg7;
+		pVxwTask->args[7] = arg8;
+		pVxwTask->args[8] = arg9;
+		pVxwTask->args[9] = arg10;
+		pVxwTask->pendSemId = SEM_ID_NULL;
+		pVxwTask->pendSemFlushed = false;
 
 		pVxwTask->c11thrd = 0;
 		pVxwTask->valid = true;
 	}
 	mtx_unlock(&vxWrapper_taskLibInst.mutex);
-
-	strcpy_s(pVxwTask->name, sizeof(pVxwTask->name), name);
-	pVxwTask->priority = priority;
-	pVxwTask->options = options;
-	pVxwTask->stackSize = stackSize;
-	pVxwTask->pEntry = pEntry;
-	pVxwTask->args[0] = arg1;
-	pVxwTask->args[1] = arg2;
-	pVxwTask->args[2] = arg3;
-	pVxwTask->args[3] = arg4;
-	pVxwTask->args[4] = arg5;
-	pVxwTask->args[5] = arg6;
-	pVxwTask->args[6] = arg7;
-	pVxwTask->args[7] = arg8;
-	pVxwTask->args[8] = arg9;
-	pVxwTask->args[9] = arg10;
-	pVxwTask->pendSemId = SEM_ID_NULL;
-	pVxwTask->pendSemFlushed = false;
 
 	return (TASK_ID)pVxwTask;
 }
@@ -346,7 +346,7 @@ TASK_ID taskIdSelf(void)
 		}
 	}
 
-	return (TASK_ID)ERROR;
+	return TASK_ID_ERROR;
 }
 
 /*!
@@ -457,12 +457,14 @@ SEM_ID semBCreate(int options, SEM_B_STATE semState)
 
 	int rc = cnd_init(&pVxwSem->c11cnd);
 	if (rc != thrd_success) {
+		free(pVxwSem);
 		return SEM_ID_NULL;
 	}
 
 	rc = mtx_init(&pVxwSem->c11mtx, mtx_plain);
 	if (rc == thrd_error) {
 		cnd_destroy(&pVxwSem->c11cnd);
+		free(pVxwSem);
 		return SEM_ID_NULL;
 	}
 
@@ -626,16 +628,18 @@ SEM_ID semCCreate(int options, int semCount)
 	pVxwSem->options = options;
 	pVxwSem->maxSemCnt = semCount;
 	pVxwSem->curSemCnt = semCount;
-	pVxwSem->semOwner = (TASK_ID)-1;
+	pVxwSem->semOwner = (TASK_ID)TASK_ID_ERROR;
 
 	int rc = cnd_init(&pVxwSem->c11cnd);
 	if (rc != thrd_success) {
+		free(pVxwSem);
 		return SEM_ID_NULL;
 	}
 
 	rc = mtx_init(&pVxwSem->c11mtx, mtx_plain);
 	if (rc == thrd_error) {
 		cnd_destroy(&pVxwSem->c11cnd);
+		free(pVxwSem);
 		return SEM_ID_NULL;
 	}
 
@@ -661,12 +665,14 @@ SEM_ID semMCreate(int options)
 
 	int rc = cnd_init(&pVxwSem->c11cnd);
 	if (rc != thrd_success) {
+		free(pVxwSem);
 		return SEM_ID_NULL;
 	}
 
 	rc = mtx_init(&pVxwSem->c11mtx, mtx_plain);
 	if (rc == thrd_error) {
 		cnd_destroy(&pVxwSem->c11cnd);
+		free(pVxwSem);
 		return SEM_ID_NULL;
 	}
 
@@ -812,6 +818,10 @@ static STATUS semMGive(SEM_ID semId)
  */
 STATUS semTake(SEM_ID semId, _Vx_ticks_t timeoutTicks)
 {
+	if (semId == SEM_ID_NULL) {
+		return ERROR;
+	}
+
 	VxWrapSem* pVxwSem = (VxWrapSem*)semId;
 	STATUS status;
 
@@ -836,6 +846,10 @@ STATUS semTake(SEM_ID semId, _Vx_ticks_t timeoutTicks)
  */
 STATUS semGive(SEM_ID semId)
 {
+	if (semId == SEM_ID_NULL) {
+		return ERROR;
+	}
+
 	VxWrapSem* pVxwSem = (VxWrapSem*)semId;
 	STATUS status;
 
@@ -860,6 +874,10 @@ STATUS semGive(SEM_ID semId)
  */
 STATUS semFlush(SEM_ID semId)
 {
+	if (semId == SEM_ID_NULL) {
+		return ERROR;
+	}
+
 	VxWrapSem* pVxwSem = (VxWrapSem*)semId;
 
 	switch (pVxwSem->type) {
@@ -929,13 +947,13 @@ MSG_Q_ID msgQCreate(size_t maxMsgNum, size_t maxMsgSize, int options)
 	if ((maxMsgNum == 0)
 	 || (maxMsgNum > (SIZE_MAX / vwMsgDataSize))) {
 		errno = S_msgQLib_INVALID_MSG_COUNT;
-		return (MSG_Q_ID)NULL;
+		return MSG_Q_ID_NULL;
 	}
 
 	void* p = malloc(sizeof(VxWrapMsgQue));
 	if (p == NULL) {
 		errno = S_memLib_NOT_ENOUGH_MEMORY;
-		return (MSG_Q_ID)NULL;
+		return MSG_Q_ID_NULL;
 	}
 	VxWrapMsgQue* pMsgQue = (VxWrapMsgQue*)p;
 
@@ -947,7 +965,7 @@ MSG_Q_ID msgQCreate(size_t maxMsgNum, size_t maxMsgSize, int options)
 	if (p == NULL) {
 		free(pMsgQue);
 		errno = S_memLib_NOT_ENOUGH_MEMORY;
-		return (MSG_Q_ID)NULL;
+		return MSG_Q_ID_NULL;
 	}
 	pMsgQue->pMsgData = (uint8_t*)p;
 	pMsgQue->vwMsgDataSize = vwMsgDataSize;
@@ -968,6 +986,10 @@ MSG_Q_ID msgQCreate(size_t maxMsgNum, size_t maxMsgSize, int options)
  */
 STATUS msgQSend(MSG_Q_ID msgQId, char* pMsg, size_t msgSize, _Vx_ticks_t timeoutTicks, int priority)
 {
+	if (msgQId == MSG_Q_ID_NULL) {
+		return ERROR;
+	}
+
 	VxWrapMsgQue* pMsgQue = (VxWrapMsgQue*)msgQId;
 
 	if (priority != MSG_PRI_NORMAL) {
@@ -1070,6 +1092,10 @@ static STATUS msgQSendTimedWait(MSG_Q_ID msgQId, char* pMsg, size_t msgSize, _Vx
  */
 ssize_t msgQReceive(MSG_Q_ID msgQId, char* pBuf, size_t bufSize, _Vx_ticks_t timeoutTicks)
 {
+	if (msgQId == MSG_Q_ID_NULL) {
+		return ERROR;
+	}
+
 	if (timeoutTicks == NO_WAIT) {
 		return msgQReceiveNoWait(msgQId, pBuf, bufSize);
 	}

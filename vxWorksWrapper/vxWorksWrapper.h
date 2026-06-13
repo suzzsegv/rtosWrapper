@@ -75,6 +75,7 @@
 
 /* taskLib */
 #define TASK_ID_NULL ((TASK_ID)NULL)
+#define TASK_ID_ERROR ((TASK_ID)UINTPTR_MAX)
 #define VX_FP_TASK 0
 
 /* semLib */
