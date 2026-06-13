@@ -3,7 +3,7 @@
  */
 
 /*
- * Copyright (c) 2023 Suzuki Satoshi
+ * Copyright (c) 2023, 2024 Suzuki Satoshi
  *
  * This software is provided 'as-is', without any express or implied warranty.
  * In no event will the authors be held liable for any damages arising from the use of
@@ -24,7 +24,7 @@
  */
 
 /*
- * Copyright (c) 2023 鈴木 聡
+ * Copyright (c) 2023, 2024 鈴木 聡
  *
  * 本ソフトウェアは「現状のまま」で、明示であるか暗黙であるかを問わず、何らの保証もなく
  * 提供されます。 本ソフトウェアの使用によって生じるいかなる損害についても、作者は一切の責任を
@@ -81,10 +81,18 @@ ER tk_sta_tsk(ID taskId, INT startCode);
 static int tkWrapTaskEntryFunc(void* pArg);
 void tk_ext_tsk(void);
 void tk_exd_tsk(void);
+ER tk_ter_tsk(ID tskid);
+ER tk_chg_pri(ID taskId, PRI priority);
+
 ER tk_ref_tsk(ID taskId, T_RTSK* pTask);
 ER tk_slp_tsk(TMO waitMs);
 static ER slp_tsk_wait_forever(void);
 ER tk_wup_tsk(ID taskId);
+INT tk_can_wup(ID taskId);
+ER tk_rel_wai(ID taskId);
+ER tk_sus_tsk(ID taskId);
+ER tk_rsm_tsk(ID taskId);
+ER tk_frsm_tsk(ID taskId);
 ER tk_dly_tsk(RELTIM delayMs);
 
 ER tk_cre_sem(T_CSEM* pCreSem);
@@ -93,12 +101,15 @@ ER tk_sig_sem(ID semId, INT count);
 ER tk_wai_sem(ID semId, INT count, TMO timeoutMs);
 static ER tk_wai_sem_no_wait(ID semId, INT count);
 static ER tk_wai_sem_wait_forever(ID semId, INT count);
+ER tk_ref_sem(ID semId, T_RSEM* pSem);
 
 ID tk_cre_mbx(CONST T_CMBX* pCreMbx);
+ER tk_del_mbx(ID mbxId);
 ER tk_snd_mbx(ID mbxId, T_MSG* pMsg);
 ER tk_rcv_mbx(ID mbxId, T_MSG** ppMsg, TMO timeoutMs);
 static ER tk_rcv_mbx_wait_forever(ID mbxId, T_MSG** ppMsg);
 static ER tk_rcv_mbx_no_wait(ID mbxId, T_MSG** ppMsg);
+ER tk_ref_mbx(ID mbxId, T_RMBX* pMbx);
 
 ID tk_get_tid(void);
 
@@ -286,6 +297,24 @@ void tk_exd_tsk(void)
 }
 
 /*!
+ * tk_ter_tsk - 他タスク強制終了
+ */
+ER tk_ter_tsk(ID tskid)
+{
+	/* 未対応 */
+	return E_SYS;
+}
+
+/*!
+ * tk_chg_pri - タスク優先度変更
+ */
+ER tk_chg_pri(ID taskId, PRI priority)
+{
+	/* 未対応 */
+	return E_SYS;
+}
+
+/*!
  * tk_ref_tsk - タスクの状態参照
  */
 ER tk_ref_tsk(ID taskId, T_RTSK* pTask)
@@ -383,6 +412,51 @@ ER tk_wup_tsk(ID taskId)
 	}
 
 	return E_OK;
+}
+
+/*!
+ * tk_can_wup - タスクの起床要求を無効化
+ */
+INT tk_can_wup(ID taskId)
+{
+	/* 未対応 */
+	return E_SYS;
+}
+
+/*!
+ * tk_rel_wai - 他タスクの待ち状態解除
+ */
+ER tk_rel_wai(ID taskId)
+{
+	/* 未対応 */
+	return E_SYS;
+}
+
+/*!
+ * tk_sus_tsk - 他タスクを強制待ち状態へ移行
+ */
+ER tk_sus_tsk(ID taskId)
+{
+	/* 未対応 */
+	return E_SYS;
+}
+
+/*!
+ * tk_rsm_tsk - 強制待ち状態のタスクを再開
+ */
+ER tk_rsm_tsk(ID taskId)
+{
+	/* 未対応 */
+	return E_SYS;
+}
+
+/*!
+ * tk_frsm_tsk - 強制待ち状態のタスクを強制再開
+ */
+ER tk_frsm_tsk(ID taskId)
+{
+	/* 未対応 */
+	return E_SYS;
 }
 
 /*!
@@ -595,6 +669,23 @@ static ER tk_wai_sem_wait_forever(ID semId, INT count)
 	return E_OK;
 }
 
+/*!
+ * tk_ref_sem - セマフォ状態参照
+ */
+ER tk_ref_sem(ID semId, T_RSEM* pSem)
+{
+	if ((semId <= 0) || (semId >= TKW_MAX_SEMID)) {
+		return E_ID;
+	}
+
+	*pSem = utkWrapperInst.semInst[semId];
+	if (pSem->valid == false) {
+		return E_NOEXS;
+	}
+
+	return E_OK;
+}
+
 /***********************************************************************
  * メールボックス
  */
@@ -637,6 +728,15 @@ ID tk_cre_mbx(CONST T_CMBX* pCreMbx)
 	cnd_init(&pMbx->c11cndRecv);
 
 	return mbxId;
+}
+
+/*!
+ * tk_del_mbx - メールボックス削除
+ */
+ER tk_del_mbx(ID mbxId)
+{
+	/* 未対応 */
+	return E_SYS;
 }
 
 /*!
@@ -764,6 +864,23 @@ static ER tk_rcv_mbx_no_wait(ID mbxId, T_MSG** ppMsg)
 		pMbx->msgNum--;
 	}
 	mtx_unlock(&pMbx->c11mtx);
+
+	return E_OK;
+}
+
+/*!
+ * tk_ref_mbx - メールボックス状態参照
+ */
+ER tk_ref_mbx(ID mbxId, T_RMBX* pMbx)
+{
+	if ((mbxId <= 0) || (mbxId >= TKW_MAX_MBXID)) {
+		return E_ID;
+	}
+
+	*pMbx = utkWrapperInst.mbxInst[mbxId];
+	if (pMbx->valid == false) {
+		return E_NOEXS;
+	}
 
 	return E_OK;
 }

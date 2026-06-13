@@ -3,7 +3,7 @@
  *                      Interface header file.
  */
 /*
- * Copyright (c) 2023 Suzuki Satoshi
+ * Copyright (c) 2023, 2024 Suzuki Satoshi
  *
  * This software is provided 'as-is', without any express or implied warranty.
  * In no event will the authors be held liable for any damages arising from the use of
@@ -24,7 +24,7 @@
  */
 
 /*
- * Copyright (c) 2023 鈴木 聡
+ * Copyright (c) 2023, 2024 鈴木 聡
  *
  * 本ソフトウェアは「現状のまま」で、明示であるか暗黙であるかを問わず、何らの保証もなく
  * 提供されます。 本ソフトウェアの使用によって生じるいかなる損害についても、作者は一切の責任を
@@ -260,9 +260,18 @@ extern ER tk_del_tsk(ID taskId);
 extern ER tk_sta_tsk(ID taskId, INT startCode);
 extern void tk_ext_tsk(void);
 extern void tk_exd_tsk(void);
+extern ER tk_ter_tsk(ID taskId);
+extern ER tk_chg_pri(ID taskId, PRI priority);
 extern ER tk_ref_tsk(ID taskId, T_RTSK* pTask);
+
 extern ER tk_slp_tsk(TMO waitMs);
 extern ER tk_wup_tsk(ID taskId);
+extern INT tk_can_wup(ID taskId);
+extern INT tk_can_wup(ID taskId);
+extern ER tk_rel_wai(ID taskId);
+extern ER tk_sus_tsk(ID taskId);
+extern ER tk_rsm_tsk(ID taskId);
+extern ER tk_frsm_tsk(ID taskId);
 extern ER tk_dly_tsk(RELTIM delayMs);
 
 /*
@@ -296,6 +305,7 @@ extern ER tk_cre_sem(T_CSEM* pCreSem);
 extern ER tk_del_sem(ID semId);
 extern ER tk_sig_sem(ID semId, INT count);
 extern ER tk_wai_sem(ID semId, INT count, TMO timeoutMs);
+extern ER tk_ref_sem(ID semId, T_RSEM* pSem);
 
 /*
  * メッセージボックス
@@ -330,8 +340,10 @@ typedef struct t_rmbx {
 } T_RMBX;
 
 extern ID tk_cre_mbx(CONST T_CMBX* pCreMbx);
+extern ER tk_del_mbx(ID mbxId);
 extern ER tk_snd_mbx(ID mbxId, T_MSG* pMsg);
 extern ER tk_rcv_mbx(ID mbxId, T_MSG** ppMsg, TMO timeoutMs);
+extern ER tk_ref_mbx(ID mbxId, T_RMBX* pMbx);
 
 extern ID tk_get_tid(void);
 
