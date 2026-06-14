@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (c) 2021-2023 Suzuki Satoshi
+ * Copyright (c) 2021-2023, 2026 Suzuki Satoshi
  *
  * This software is provided 'as-is', without any express or implied warranty.
  * In no event will the authors be held liable for any damages arising from the use of
@@ -25,7 +25,7 @@
  */
 
 /*
- * Copyright (c) 2021-2023 鈴木 聡
+ * Copyright (c) 2021-2023, 2026 鈴木 聡
  *
  * 本ソフトウェアは「現状のまま」で、明示であるか暗黙であるかを問わず、何らの保証もなく
  * 提供されます。 本ソフトウェアの使用によって生じるいかなる損害についても、作者は一切の責任を
