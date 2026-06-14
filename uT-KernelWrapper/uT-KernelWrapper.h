@@ -191,9 +191,11 @@ typedef enum {
  * カーネル共通定数
  */
 #define TA_TFIFO	0x00	// 待ちタスクをFIFOで管理
-#define TA_TPRI		0x01	// 待ちタスクを優先度順で管理
+#define TA_WSGL		0x00	// 複数タスクの待ちを許さない
 #define TA_MFIFO	0x00	// メッセージをFIFOで管理
+#define TA_TPRI		0x01	// 待ちタスクを優先度順で管理
 #define TA_MPRI		0x02	// メッセージを優先度順で管理
+#define TA_WMUL		0x08	// 複数タスクの待ちを許す
 #define TA_DSNAME	0x40	// DSオブジェクト名称を指定
 #define TA_NODISWAI	0x80	// 待ち禁止拒否
 
@@ -346,4 +348,32 @@ extern ER tk_rcv_mbx(ID mbxId, T_MSG** ppMsg, TMO timeoutMs);
 extern ER tk_ref_mbx(ID mbxId, T_RMBX* pMbx);
 
 extern ID tk_get_tid(void);
+
+/*
+ * イベントフラグ
+ */
+typedef struct t_cflg {
+	void* exinf; // Extended Information 拡張情報
+	ATR flgatr; // EventFlag Attribute イベントフラグ属性
+	UINT iflgptn; // Initial EventFlag Pattern イベントフラグの初期値
+	UB dsname[8]; // DS Object name DSオブジェクト名称
+} T_CFLG;
+
+typedef struct pk_rflg {
+	void* exinf; // Extended Information 拡張情報
+	ID wtsk; // Wait Task Information 待ちタスクのID
+	UINT flgptn; // EventFlag Bit Pattern 現在のイベントフラグのビットパターン
+} T_RFLG;
+
+#define TWF_ANDW 0x00 // AND待ち
+#define TWF_ORW 0x01 // OR待ち
+#define TWF_CLR 0x10 // 全クリア指定
+#define TWF_BITCLR 0x20 // 条件ビットのみクリア指定
+
+extern ID tk_cre_flg (CONST T_CFLG *pCreFlg );
+extern ER tk_del_flg(ID flgId);
+extern ER tk_set_flg(ID flgId, UINT setBit);
+extern ER tk_clr_flg(ID flgId, UINT clearBit);
+extern ER tk_wai_flg(ID flgId, UINT waitBit, UINT wfMode, UINT* pEventBit, TMO timoutMs);
+extern ER tk_ref_flg(ID flgId, T_RFLG* pFlg);
 
